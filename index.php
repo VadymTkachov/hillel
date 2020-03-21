@@ -23,7 +23,6 @@ $user_info = isset( $_GET['user_id'] ) ? get_user_by_id( $_GET['user_id'] ) : ''
     <?php if ( ! is_table_exists( 'users' ) ): ?>
         <?php include_once( TEMPLATE_DIR . 'blocks/create-table.php' ); ?>
     <?php else: ?>
-        <div class="text-success">Table 'users' exist</div>
         <hr>
         <?php include_once( TEMPLATE_DIR . 'blocks/new-user.php' ); ?>
         <br>
@@ -33,6 +32,9 @@ $user_info = isset( $_GET['user_id'] ) ? get_user_by_id( $_GET['user_id'] ) : ''
         <hr>
         <br>
         <?php include_once( TEMPLATE_DIR . 'blocks/delete-users.php' ); ?>
+        <br>
+        <br>
     <?php endif; ?>
 </div>
 <?php include_once( TEMPLATE_DIR . 'footer.php' ); ?>
+<?php unset( $_GET['message'] ); ?>

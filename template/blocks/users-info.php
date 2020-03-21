@@ -5,16 +5,20 @@ $id_links = [];
 ?>
 <div class="all-users">
     <h2>Get User Info by ID:</h2>
-    <strong>User ids: </strong>
-    <?php foreach ( $users as $user ) {
-        if ( ! empty( $_GET['user_id'] ) && $user->id === $_GET['user_id'] ) {
-            $id_links[] = '<span class="text-secondary">' . $user->id . '</span>';
-        } else {
-            $id_links[] = '<a href="' . HOME_PAGE . '?user_id=' . $user->id . '">' . $user->id . '</a>';
+    <?php if ( ! empty( $users ) ) { ?>
+        <strong>User ids: </strong>
+        <?php foreach ( $users as $user ) {
+            if ( ! empty( $_GET['user_id'] ) && $user->id === $_GET['user_id'] ) {
+                $id_links[] = '<span class="text-secondary">' . $user->id . '</span>';
+            } else {
+                $id_links[] = '<a href="' . HOME_PAGE . '?user_id=' . $user->id . '">' . $user->id . '</a>';
+            }
         }
-    }
-    echo implode( ', ', $id_links );
-    ?>
+        echo implode( ', ', $id_links );
+        ?>
+    <?php } else { ?>
+        <p>Users empty.</p>
+    <?php } ?>
 </div>
 <br>
 <?php if ( ! empty( $user_info ) && is_object( $user_info ) ): ?>

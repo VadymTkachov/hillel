@@ -1,6 +1,10 @@
 <?php
 
+session_start();
+
 global $pdo;
+
+$pdo = pdo_init();
 
 // Display Errors
 ini_set( 'display_errors', 1 );
@@ -46,54 +50,99 @@ function pdo_init() {
 
 // Make task
 if ( isset( $_GET['task'] ) && ! empty( $_GET['task'] ) ) {
-    $pdo = pdo_init();
+
 
     switch ( $_GET['task'] ) {
         case 'create':
             {
-                if ( empty( $_GET['table'] ) ) {
-                    redirect_to();
-                }
-
-                $table = $_GET['table'];
-
-                if ( ! is_table_exists( $table ) && file_exists( SQL_DIR . "create-{$table}.sql" ) ) {
-                    $prepare = $pdo->prepare( file_get_contents( SQL_DIR . "create-{$table}.sql" ) );
-                    $prepare->execute();
-                }
+                table_create();
             }
             break;
 
         case 'insert':
             {
-                if ( empty( $_GET['user'] ) || ! is_array( $_GET['user'] ) ) {
-                    redirect_to();
-                }
+                user_add();
+            }
+            break;
 
-                $query   = 'INSERT INTO ' . SQL_PREFIX . 'users ';
-                $columns = [];
-                $values  = [];
-
-                foreach ( $_GET['user'] as $key => $field ) {
-                    array_push( $columns, $key );
-                    array_push( $values, $field );
-                }
-
-                try {
-                    $query   = $query . ' (' . implode( ',', $columns ) . ') VALUES ("' . implode( '","', $values ) . '");';
-                    $prepare = $pdo->prepare( $query );
-                    $results = $prepare->execute();
-
-                    redirect_to( '?status=success&message=User was successfully added.' );
-                } catch ( PDOException $e ) {
-                    redirect_to( '?status=error&message=Error adding user' );
-                }
+        case 'delete':
+            {
+                users_delete();
             }
             break;
     }
+}
 
-    // Redirect to homepage
-    redirect_to();
+// Create table
+function table_create() {
+    global $pdo;
+
+    if ( empty( $_GET['table'] ) ) {
+        redirect_to();
+    }
+
+    try {
+        $table = $_GET['table'];
+
+        if ( ! is_table_exists( $table ) && file_exists( SQL_DIR . "create-{$table}.sql" ) ) {
+            $prepare = $pdo->prepare( file_get_contents( SQL_DIR . "create-{$table}.sql" ) );
+            $prepare->execute();
+
+            redirect_to( '?status=success&message=Table "' . $table . '" exist.' );
+        }
+    } catch ( PDOException $e ) {
+        redirect_to( '?status=error&message=Table was not created.' );
+    }
+}
+
+
+// Add user
+function user_add() {
+    global $pdo;
+
+    if ( empty( $_GET['user'] ) || ! is_array( $_GET['user'] ) ) {
+        redirect_to();
+    }
+
+    $query   = 'INSERT INTO ' . SQL_PREFIX . 'users ';
+    $columns = [];
+    $values  = [];
+
+    foreach ( $_GET['user'] as $key => $field ) {
+        array_push( $columns, $key );
+        array_push( $values, $field );
+    }
+
+    try {
+        $query   = $query . ' (' . implode( ',', $columns ) . ') VALUES ("' . implode( '","', $values ) . '");';
+        $prepare = $pdo->prepare( $query );
+        $results = $prepare->execute();
+
+        redirect_to( '?status=success&message=User was added.' );
+    } catch ( PDOException $e ) {
+        redirect_to( '?status=error&message=Error adding user' );
+    }
+}
+
+
+// Delete user
+function users_delete() {
+    global $pdo;
+
+    if ( empty( $_GET['user_ids'] ) ) {
+        return false;
+    }
+
+    try {
+        $user_ids = implode( ', ', $_GET['user_ids'] );
+        $query    = "DELETE FROM " . SQL_PREFIX . "users WHERE id IN ({$user_ids})";
+        $query    = $pdo->prepare( $query );
+        $query->execute();
+
+        redirect_to( '?status=success&message=Users Has been deleted' );
+    } catch ( PDOException $e ) {
+        redirect_to( '?status=error&message=Users was not deleted!' );
+    }
 }
 
 
@@ -106,13 +155,10 @@ function redirect_to( $path = '/' ) {
 
 
 // Check table exists
-function is_table_exists( $table = '' ) {
+function is_table_exists( $table = 'users' ) {
 
-    if ( empty( $table ) ) {
-        return false;
-    }
+    global $pdo;
 
-    $pdo   = pdo_init();
     $table = SQL_PREFIX . $table;
 
     try {
@@ -128,7 +174,13 @@ function is_table_exists( $table = '' ) {
 
 // Get Users
 function get_users() {
-    $pdo   = pdo_init();
+
+    global $pdo;
+
+    if ( ! is_table_exists() ) {
+        return false;
+    }
+
     $query = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users" );
     $query->execute();
 
@@ -137,14 +189,22 @@ function get_users() {
 
 // Get User by ID
 function get_user_by_id( $id ) {
+    global $pdo;
 
     if ( empty( $id ) ) {
         return false;
     }
 
-    $pdo   = pdo_init();
     $query = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users WHERE id={$id}" );
     $query->execute();
 
     return $query->fetchObject();
+}
+
+// Cleaner system message
+if ( ! empty( $_GET['message'] ) && empty( $_SESSION['message'] ) ) {
+    $_SESSION['message'] = 1;
+} elseif ( ! empty( $_GET['message'] ) ) {
+    $_SESSION['message'] = 0;
+    redirect_to();
 }
