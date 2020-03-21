@@ -1,27 +1,32 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Task 1</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <?php include_once( 'functions.php' ); ?>
-</head>
-<body>
-<div class="container">
-    <h1>Task #1</h1>
-    <?php if ( ! is_table_exists( 'users' ) ): ?>
-        <form action="<?php echo HOME_PAGE; ?>">
-            <input type="hidden" name="task" value="create">
-            <input type="hidden" name="table" value="users">
-            <button type="submit" class="btn btn-success">Create user table</button>
-        </form>
-    <?php else: ?>
-        <div class="text-success">Table 'users' exist</div>
-    <?php endif; ?>
-</div>
-</body>
-</html>
+<?php
+
+/**
+ * Main file
+ */
+
+include_once( 'functions.php' );
+include_once( TEMPLATE_DIR . 'header.php' );
+
+?>
+    <div class="container">
+        <div class="system-messages">
+            <?php if ( ! empty( $_GET['message'] ) && 'success' === $_GET['status'] ): ?>
+                <p class="bg-success text-white"><?php echo $_GET['message']; ?></p>
+            <?php elseif ( ! empty( $_GET['message'] ) ): ?>
+                <p class="bg-danger text-white"><?php echo $_GET['message']; ?></p>
+            <?php endif; ?>
+        </div>
+        <h1>Task #1</h1>
+        <?php if ( ! is_table_exists( 'users' ) ): ?>
+            <?php include_once( TEMPLATE_DIR . 'blocks/create-table.php' ); ?>
+        <?php else: ?>
+            <div class="text-success">Table 'users' exist</div>
+            <hr>
+            <?php include_once( TEMPLATE_DIR . 'blocks/new-user.php' ); ?>
+            <br>
+            <hr>
+            <br>
+            <?php include_once( TEMPLATE_DIR . 'blocks/delete-users.php' ); ?>
+        <?php endif; ?>
+    </div>
+<?php include_once( TEMPLATE_DIR . 'footer.php' ); ?>

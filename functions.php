@@ -1,12 +1,15 @@
 <?php
 
+global $pdo;
+
+// Display Errors
 ini_set( 'display_errors', 1 );
 ini_set( 'display_startup_errors', 1 );
 error_reporting( E_ALL );
 
-global $pdo;
-
+// Defines
 define( 'SQL_DIR', __DIR__ . '/sql/' );
+define( 'TEMPLATE_DIR', __DIR__ . '/template/' );
 define( 'SQL_PREFIX', 'hl_' );
 define( 'HOME_PAGE', $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] );
 
@@ -42,20 +45,54 @@ function pdo_init() {
 
 
 // Make task
-if ( isset( $_GET['task'] ) && 'create' === $_GET['task'] ) {
+if ( isset( $_GET['task'] ) && ! empty( $_GET['task'] ) ) {
+    $pdo = pdo_init();
 
-    if ( empty( $_GET['table'] ) ) {
-        redirect_to();
+    switch ( $_GET['task'] ) {
+        case 'create':
+            {
+                if ( empty( $_GET['table'] ) ) {
+                    redirect_to();
+                }
+
+                $table = $_GET['table'];
+
+                if ( ! is_table_exists( $table ) && file_exists( SQL_DIR . "create-{$table}.sql" ) ) {
+                    $prepare = $pdo->prepare( file_get_contents( SQL_DIR . "create-{$table}.sql" ) );
+                    $prepare->execute();
+                }
+            }
+            break;
+
+        case 'insert':
+            {
+                if ( empty( $_GET['user'] ) || ! is_array( $_GET['user'] ) ) {
+                    redirect_to();
+                }
+
+                $query   = 'INSERT INTO ' . SQL_PREFIX . 'users ';
+                $columns = [];
+                $values  = [];
+
+                foreach ( $_GET['user'] as $key => $field ) {
+                    array_push( $columns, $key );
+                    array_push( $values, $field );
+                }
+
+                try {
+                    $query   = $query . ' (' . implode( ',', $columns ) . ') VALUES ("' . implode( '","', $values ) . '");';
+                    $prepare = $pdo->prepare( $query );
+                    $results = $prepare->execute();
+
+                    redirect_to( '?status=success&message=User was successfully added.' );
+                } catch ( PDOException $e ) {
+                    redirect_to( '?status=error&message=Error adding user' );
+                }
+            }
+            break;
     }
 
-    $pdo   = pdo_init();
-    $table = $_GET['table'];
-
-    if ( ! is_table_exists( $table ) && file_exists( SQL_DIR . "create-{$table}.sql" ) ) {
-        $stmt = $pdo->prepare( file_get_contents( SQL_DIR . "create-{$table}.sql" ) );
-        $stmt->execute();
-    }
-
+    // Redirect to homepage
     redirect_to();
 }
 
@@ -87,4 +124,12 @@ function is_table_exists( $table = '' ) {
 
         return false;
     }
+}
+
+// Get Users
+function get_users() {
+    $pdo     = pdo_init();
+    $prepare = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users " );
+
+    return $prepare->execute();
 }

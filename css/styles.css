@@ -1,0 +1,9 @@
+.form-group.required label:after {
+    content: "*";
+    color: red;
+}
+
+.bg-danger,
+.bg-success {
+    padding: 0 15px;
+}
