@@ -128,8 +128,23 @@ function is_table_exists( $table = '' ) {
 
 // Get Users
 function get_users() {
-    $pdo     = pdo_init();
-    $prepare = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users " );
+    $pdo   = pdo_init();
+    $query = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users" );
+    $query->execute();
 
-    return $prepare->execute();
+    return $query->fetchAll();
+}
+
+// Get User by ID
+function get_user_by_id( $id ) {
+
+    if ( empty( $id ) ) {
+        return false;
+    }
+
+    $pdo   = pdo_init();
+    $query = $pdo->prepare( "SELECT * FROM " . SQL_PREFIX . "users WHERE id={$id}" );
+    $query->execute();
+
+    return $query->fetchObject();
 }
