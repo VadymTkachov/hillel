@@ -22,5 +22,4 @@ class Test
 
 
 $test = new Test();
-$sum  = $test->getSum();
-echo 'Summ = ' . $sum;
+echo 'Summ = ' . $test->getSum();
