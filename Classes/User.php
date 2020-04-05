@@ -46,15 +46,20 @@ class User
     }
 
 
+    // Show form
     public function showForm()
     {
         $this->form->showForm();
     }
 
 
-    public function redirect(string $url)
+    /**
+     * @param string $url
+     * @param int $status
+     */
+    public function redirect(string $url, int $status = 301)
     {
-        header("HTTP/1.1 301 Moved Permanently");
+        header("HTTP/1.1 {$status} Moved Permanently");
         header("Location: " . $url);
         exit();
     }
