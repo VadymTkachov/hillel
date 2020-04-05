@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Controllers\Admin;
+namespace Classes\Http\Controllers\Admin;
 
 
 class DashboardController
