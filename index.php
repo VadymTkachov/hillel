@@ -14,4 +14,7 @@ $isNumberText = '235';
 $regEx = new regExp($quantity);
 
 // If Is Numbter
-echo("Is Number ('{$isNumberText}' and up to '{$quantity}' characters)?: " . $regEx->isRegNumber($isNumberText));
+echo("1) Is Number ('{$isNumberText}' and up to '{$quantity}' characters)?: " . $regEx->isRegNumber($isNumberText) . "<br>");
+echo ("2) Double Spaces Cleaner: " . $regEx->doubleSpaceReplace('Text    text text         text!') . "<br>");
+echo "3) Founded Texts: <pre>" . print_r ($regEx->findTextByTag(file_get_contents(__DIR__ . '/inc/index.php'), 'title'), true) . "</pre><br>";
+
