@@ -1,4 +1,4 @@
-CREATE TABLE `hl_users` (
+CREATE TABLE IF NOT EXISTS `hl_users` (
     `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` varchar(30) NOT NULL,
     `surname` varchar(30) NOT NULL,

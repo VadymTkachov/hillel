@@ -2,12 +2,22 @@
 
 session_start();
 
-$pdo = pdo_init();
-
 // Display Errors
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+
+$pdo = pdo_init();
+$name = 'Vadym';
+
+$query = $pdo->prepare("SELECT * FROM hl_users WHERE name = :name " );
+$query->bindParam(':name', $name);
+$query->execute();
+
+var_dump($query->fetchAll());
+die('!');
+
 
 // Defines
 define('SQL_DIR', __DIR__ . '/sql/');
