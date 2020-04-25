@@ -4,56 +4,31 @@
 namespace App;
 
 
-use App\Interfaces\IBuilder;
+use Interfaces\IPayment;
 
 
 /**
- * Class MasterCardBuilder
+ * Class MasterCard
  * @package App
  */
-class MasterCardBuilder implements IBuilder
+class MasterCard implements IPayment
 {
     /**
-     * @var MasterCard
+     * @return int
      */
-    private MasterCard $masterCard;
-
-
-    /**
-     * MasterCardBuilder constructor.
-     */
-    public function __construct()
+    public function connect(): int
     {
-        $this->reset();
-        $this->masterCard->params['method'] = 'MasterCard';
+        return 355;
     }
 
 
     /**
-     * Reset
+     * @return string
      */
-    public function reset(): void
+    public function pay(): string
     {
-        $this->masterCard = new MasterCard();
-    }
-
-
-    /**
-     * Pay
-     */
-    public function pay(): void
-    {
-        $this->masterCard->params['status'] = 'Was paid';
-    }
-
-
-    /**
-     * @return MasterCard|mixed
-     */
-    public function getResult()
-    {
-        $result = $this->masterCard;
-        $this->reset();
+        $connectId = $this->connect();
+        $result    = "ID Connection is: {$connectId}. This has been pied success full!";
 
         return $result;
     }

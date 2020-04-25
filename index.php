@@ -6,16 +6,14 @@ error_reporting(E_ALL);
 
 include_once('vendor/autoload.php');
 
-use App\Director;
-use App\MasterCardBuilder;
+use App\Creator;
+use App\MasterCardCreator;
 
-function clientCode(Director $director)
+function clientCode(Creator $creator)
 {
-    $builder = new MasterCardBuilder();
-    $director->setBuilder($builder);
-    $director->pay();
-    $director->build();
+    echo "Payment info: " . $creator->pay();
 }
 
-$director = new Director();
-clientCode($director);
+echo "App: Launched with the MasterCard Creator. <br>";
+clientCode(new MasterCardCreator);
+echo "<br><br>";
