@@ -1,7 +1,6 @@
 <?php
 
 $id_links = [];
-
 ?>
 <div class="all-users">
     <h2>Get User Info by ID:</h2>

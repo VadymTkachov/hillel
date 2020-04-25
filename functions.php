@@ -1,6 +1,6 @@
 <?php
 
-//session_start();
+session_start();
 
 // Display Errors
 ini_set('display_errors', 1);
@@ -9,23 +9,13 @@ error_reporting(E_ALL);
 
 global $db;
 
+include_once(__DIR__ . '/Classes/MyDb.php');
+
 // Constants
 const SQL_DIR      = __DIR__ . '/sql/';
 const TEMPLATE_DIR = __DIR__ . '/template/';
 const SQL_PREFIX   = 'hl_';
-
 define('HOME_PAGE', $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']);
-
-include_once(__DIR__ . '/Classes/MyDb.php');
-
-$name = 'Vadym';
-
-$query = $db->prepare("SELECT * FROM hl_users WHERE name = :name ");
-$query->bindParam(':name', $name);
-$query->execute();
-$users = $query->fetchAll();
-
-
 
 // Make task
 if (isset($_GET['task']) && ! empty($_GET['task'])) {
@@ -50,7 +40,8 @@ if (isset($_GET['task']) && ! empty($_GET['task'])) {
     }
 }
 
-// Create table
+
+// Create Table & Procedures
 function table_create()
 {
     global $db;
@@ -65,6 +56,18 @@ function table_create()
         if ( ! is_table_exists($table) && file_exists(SQL_DIR . "create-{$table}.sql")) {
             $prepare = $db->prepare(file_get_contents(SQL_DIR . "create-{$table}.sql"));
             $prepare->execute();
+
+            // Procedure users
+            $query = $db->prepare(file_get_contents(SQL_DIR . 'procedures/users.sql'));
+            $query->execute();
+
+            // Procedure user
+            $query = $db->prepare(file_get_contents(SQL_DIR . 'procedures/user.sql'));
+            $query->execute();
+
+            // Procedure user_add
+            $query = $db->prepare(file_get_contents(SQL_DIR . 'procedures/user-add.sql'));
+            $query->execute();
 
             redirect_to('?status=success&message=Table "' . $table . '" exist.');
         }
@@ -83,28 +86,30 @@ function user_add()
         redirect_to();
     }
 
-    $query   = 'INSERT INTO ' . SQL_PREFIX . 'users ';
-    $columns = [];
-    $values  = [];
+    $values = [];
 
-    foreach ($_GET['user'] as $key => $field) {
-        array_push($columns, $key);
+    foreach ($_GET['user'] as $field) {
         array_push($values, $field);
     }
 
+    if (5 > count($values)) {
+        array_push($values, '');
+    }
+
     try {
-        $query   = $query . ' (' . implode(',', $columns) . ') VALUES ("' . implode('","', $values) . '");';
-        $prepare = $db->prepare($query);
-        $results = $prepare->execute();
+        $query = $db->prepare('CALL user_add("' . implode('","', $values) . '")');
+        $query->execute();
 
         redirect_to('?status=success&message=User was added.');
     } catch (PDOException $e) {
-        redirect_to('?status=error&message=Error adding user');
+        redirect_to('?status=error&message=' . $e->getMessage());
     }
 }
 
 
-// Delete user
+/**
+ * @return bool
+ */
 function users_delete()
 {
     global $db;
@@ -126,7 +131,9 @@ function users_delete()
 }
 
 
-// Redirect to @path = string
+/**
+ * @param string $path
+ */
 function redirect_to($path = '/')
 {
     header("HTTP/1.1 301 Moved Permanently");
@@ -135,7 +142,11 @@ function redirect_to($path = '/')
 }
 
 
-// Check table exists
+/**
+ * @param string $table
+ *
+ * @return bool
+ */
 function is_table_exists($table = 'users')
 {
     global $db;
@@ -151,7 +162,10 @@ function is_table_exists($table = 'users')
     }
 }
 
-// Get Users
+
+/**
+ * @return array|bool
+ */
 function get_users()
 {
     global $db;
@@ -160,13 +174,18 @@ function get_users()
         return false;
     }
 
-    $query = $db->prepare("SELECT * FROM " . SQL_PREFIX . "users");
+    $query = $db->prepare("CALL users()");
     $query->execute();
 
     return $query->fetchAll();
 }
 
-// Get User by ID
+
+/**
+ * @param $id
+ *
+ * @return bool|mixed
+ */
 function get_user_by_id($id)
 {
     global $db;
@@ -175,11 +194,13 @@ function get_user_by_id($id)
         return false;
     }
 
-    $query = $db->prepare("SELECT * FROM " . SQL_PREFIX . "users WHERE id={$id}");
+    $query = $db->prepare('CALL user(:id)');
+    $query->bindParam('id', $id);
     $query->execute();
 
     return $query->fetchObject();
 }
+
 
 // Cleaner system message
 if ( ! empty($_GET['message']) && empty($_SESSION['message'])) {
@@ -188,3 +209,9 @@ if ( ! empty($_GET['message']) && empty($_SESSION['message'])) {
     $_SESSION['message'] = 0;
     redirect_to();
 }
+
+if ( ! empty($_GET['user_id'])) {
+    $user_info = get_user_by_id($_GET['user_id']);
+}
+
+$users = get_users();
