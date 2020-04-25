@@ -21,15 +21,7 @@ class ComposerStaticInitba5f22082dfc88a54766ccfbc65a4800
     );
 
     public static $classMap = array (
-        'App\\DeliveryByEmail' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\DeliveryBySms' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\DeliveryToConsole' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\FormatRow' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\FormatWithDate' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\FormatWithDateAndDetails' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\IDelivery' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\IFormat' => __DIR__ . '/../..' . '/Classes/Logger.php',
-        'App\\Logger' => __DIR__ . '/../..' . '/Classes/Logger.php',
+        'App\\MyDb' => __DIR__ . '/../..' . '/Classes/MyDb.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

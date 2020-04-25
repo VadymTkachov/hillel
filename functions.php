@@ -1,54 +1,30 @@
 <?php
 
-session_start();
+//session_start();
 
 // Display Errors
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+global $db;
 
-$pdo = pdo_init();
-$name = 'Vadym';
+// Constants
+const SQL_DIR      = __DIR__ . '/sql/';
+const TEMPLATE_DIR = __DIR__ . '/template/';
+const SQL_PREFIX   = 'hl_';
 
-$query = $pdo->prepare("SELECT * FROM hl_users WHERE name = :name " );
-$query->bindParam(':name', $name);
-$query->execute();
-
-var_dump($query->fetchAll());
-die('!');
-
-
-// Defines
-define('SQL_DIR', __DIR__ . '/sql/');
-define('TEMPLATE_DIR', __DIR__ . '/template/');
-define('SQL_PREFIX', 'hl_');
 define('HOME_PAGE', $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']);
 
-// PDO Init @pdo = obj
-function pdo_init()
-{
-    // PDO Settings
-    $pdo     = '';
-    $host    = "localhost";
-    $dp_name = "shop_db";
-    $user    = "root";
-    $pass    = "root";
-    $dsn     = "mysql:host=$host;dbname=$dp_name";
-    $opt     = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-    ];
+include_once(__DIR__ . '/Classes/MyDb.php');
 
-    try {
-        $pdo = new PDO($dsn, $user, $pass, $opt);
-    } catch (PDOException $e) {
-        echo '<pre>Code: ' . print_r($e->getCode() . '; Message: ' . $e->getMessage(), true) . '</pre>';
-        echo '<pre>File: ' . print_r($e->getFile() . '; In line: ' . $e->getLine(), true) . '</pre>';
-    }
+$name = 'Vadym';
 
-    return $pdo;
-}
+$query = $db->prepare("SELECT * FROM hl_users WHERE name = :name ");
+$query->bindParam(':name', $name);
+$query->execute();
+$users = $query->fetchAll();
+
 
 
 // Make task
@@ -77,7 +53,7 @@ if (isset($_GET['task']) && ! empty($_GET['task'])) {
 // Create table
 function table_create()
 {
-    global $pdo;
+    global $db;
 
     if (empty($_GET['table'])) {
         redirect_to();
@@ -87,7 +63,7 @@ function table_create()
         $table = $_GET['table'];
 
         if ( ! is_table_exists($table) && file_exists(SQL_DIR . "create-{$table}.sql")) {
-            $prepare = $pdo->prepare(file_get_contents(SQL_DIR . "create-{$table}.sql"));
+            $prepare = $db->prepare(file_get_contents(SQL_DIR . "create-{$table}.sql"));
             $prepare->execute();
 
             redirect_to('?status=success&message=Table "' . $table . '" exist.');
@@ -101,7 +77,7 @@ function table_create()
 // Add user
 function user_add()
 {
-    global $pdo;
+    global $db;
 
     if (empty($_GET['user']) || ! is_array($_GET['user'])) {
         redirect_to();
@@ -118,7 +94,7 @@ function user_add()
 
     try {
         $query   = $query . ' (' . implode(',', $columns) . ') VALUES ("' . implode('","', $values) . '");';
-        $prepare = $pdo->prepare($query);
+        $prepare = $db->prepare($query);
         $results = $prepare->execute();
 
         redirect_to('?status=success&message=User was added.');
@@ -131,7 +107,7 @@ function user_add()
 // Delete user
 function users_delete()
 {
-    global $pdo;
+    global $db;
 
     if (empty($_GET['user_ids'])) {
         return false;
@@ -140,7 +116,7 @@ function users_delete()
     try {
         $user_ids = implode(', ', $_GET['user_ids']);
         $query    = "DELETE FROM " . SQL_PREFIX . "users WHERE id IN ({$user_ids})";
-        $query    = $pdo->prepare($query);
+        $query    = $db->prepare($query);
         $query->execute();
 
         redirect_to('?status=success&message=Users Has been deleted');
@@ -162,12 +138,12 @@ function redirect_to($path = '/')
 // Check table exists
 function is_table_exists($table = 'users')
 {
-    global $pdo;
+    global $db;
 
     $table = SQL_PREFIX . $table;
 
     try {
-        $result = $pdo->query("SELECT 1 FROM $table LIMIT 1");
+        $result = $db->query("SELECT 1 FROM $table LIMIT 1");
 
         return true;
     } catch (Exception $e) {
@@ -178,13 +154,13 @@ function is_table_exists($table = 'users')
 // Get Users
 function get_users()
 {
-    global $pdo;
+    global $db;
 
     if ( ! is_table_exists()) {
         return false;
     }
 
-    $query = $pdo->prepare("SELECT * FROM " . SQL_PREFIX . "users");
+    $query = $db->prepare("SELECT * FROM " . SQL_PREFIX . "users");
     $query->execute();
 
     return $query->fetchAll();
@@ -193,13 +169,13 @@ function get_users()
 // Get User by ID
 function get_user_by_id($id)
 {
-    global $pdo;
+    global $db;
 
     if (empty($id)) {
         return false;
     }
 
-    $query = $pdo->prepare("SELECT * FROM " . SQL_PREFIX . "users WHERE id={$id}");
+    $query = $db->prepare("SELECT * FROM " . SQL_PREFIX . "users WHERE id={$id}");
     $query->execute();
 
     return $query->fetchObject();

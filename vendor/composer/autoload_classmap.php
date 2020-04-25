@@ -6,13 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\DeliveryByEmail' => $baseDir . '/Classes/Logger.php',
-    'App\\DeliveryBySms' => $baseDir . '/Classes/Logger.php',
-    'App\\DeliveryToConsole' => $baseDir . '/Classes/Logger.php',
-    'App\\FormatRow' => $baseDir . '/Classes/Logger.php',
-    'App\\FormatWithDate' => $baseDir . '/Classes/Logger.php',
-    'App\\FormatWithDateAndDetails' => $baseDir . '/Classes/Logger.php',
-    'App\\IDelivery' => $baseDir . '/Classes/Logger.php',
-    'App\\IFormat' => $baseDir . '/Classes/Logger.php',
-    'App\\Logger' => $baseDir . '/Classes/Logger.php',
+    'App\\MyDb' => $baseDir . '/Classes/MyDb.php',
 );

@@ -11,9 +11,6 @@ error_reporting(E_ALL);
 include_once( 'functions.php' );
 include_once( TEMPLATE_DIR . 'header.php' );
 
-$users     = get_users();
-$user_info = isset( $_GET['user_id'] ) ? get_user_by_id( $_GET['user_id'] ) : '';
-
 ?>
 <div class="container">
     <div class="system-messages">
