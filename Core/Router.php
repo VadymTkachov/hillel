@@ -127,7 +127,6 @@ class Router
                     }
                 }
 
-
                 echo "<pre>" . print_r($params, true) . "</pre>";die();
                 $this->params = $params;
                 return true;

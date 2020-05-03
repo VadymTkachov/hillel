@@ -4,28 +4,54 @@
 namespace App\Controllers;
 
 
-class PostsController
+use Core\Controller;
+use Core\View;
+use App\Controllers\Post;
+
+class PostsController extends Controller
 {
     public function index()
     {
-        return "This is AuthController and index method";
+        View::render('posts/index.php');
     }
 
 
     public function create()
     {
-        return "This is AuthController and create method";
+        View::render('posts/create.php');
     }
 
 
     public function store()
     {
-        return "This is AuthController and store method";
+        if (empty($_POST['title'])) {
+            $this->validation = false;
+            $this->data       = [
+                'data'        => $_POST,
+                'title_error' => 'Title should not be empty!',
+            ];
+        }
+
+        if ( ! $this->validation) {
+            View::render('posts/create.php', $this->data);
+        }
+
+        $modelData = [
+            'title'   => $_POST['title'],
+            'content' => ! empty($_POST['content']) ? $_POST['content'] : '',
+        ];
+        $post      = new Post();
+        $postId    = $post->insert($modelData);
+
+        site_redirect('posts/' . $postId);
     }
 
 
-    public function show()
+    public function show(int $id)
     {
-        return "This is AuthController and show method";
+        $postModel = new Post();
+        $post      = $postModel->getPost($id);
+
+        View::render('posts/show.php', ['post' => $post]);
     }
 }
