@@ -1,6 +1,6 @@
 <?php
 
-$router->add('', ['controller' => 'Home', 'action' => 'index']);
+$router->add('', ['controller' => 'HomeController', 'action' => 'index']);
 $router->add('home', ['controller' => 'HomeController', 'action' => 'index']);
 
 // Auth routes
