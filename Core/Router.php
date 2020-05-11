@@ -9,7 +9,7 @@ class Router
     protected $routes = [];
     protected $params = [];
     protected $convertTypes = [
-        'd' => 'ing',
+        'd' => 'int',
         'w' => 'string',
     ];
 
@@ -29,7 +29,7 @@ class Router
             if (class_exists($controller)) {
                 $action = $this->params['action'];
                 unset($this->params['action']);
-                $action     = $this->convertToCamelCase($action);
+                $action = $this->convertToCamelCase($action);
                 $controller = new $controller;
 
                 call_user_func_array(
@@ -70,7 +70,7 @@ class Router
 
     protected function removeQueryStringVariables($url)
     {
-        if ( ! empty($url)) {
+        if (!empty($url)) {
             $parts = explode('&', $url, 2);
 
             if (strpos($parts[0], '=') === false) {
@@ -93,7 +93,7 @@ class Router
     public function add($route, array $params = [])
     {
         $route = preg_replace('/\//', '\\/', $route);
-        $route = preg_replace('/\{([a-z]+)\}/', '(?P<\1[a-z-]+)', $route);
+        $route = preg_replace('/\{([a-z]+)\}/', '(?P<\1>[a-z-]+)', $route);
         $route = preg_replace('/\{([a-z]+):([^\}]+)\}/', '(?P<\1>\2)', $route);
         $route = '/^' . $route . '$/i';
 
@@ -110,24 +110,17 @@ class Router
     {
         foreach ($this->routes as $route => $params) {
             if (preg_match($route, $url, $matches)) {
-
-                echo "<pre>" . print_r($route, true) . "</pre>";
-
-                preg_match_all('|\(\?P<[\d]+>\\\\(\d[\+])\)|', $route, $types);
-
-                echo "<pre>" . print_r($matches, true) . "</pre>";
-
+                preg_match_all('|\(\?P<[\w]+>\\\\(\w[\+])\)|', $route, $types);
                 $step = 0;
                 foreach ($matches as $key => $match) {
                     if (is_string($key)) {
-                        $types[1] = str_replace('+', '', $types[1]);
-                        settype($match, $this->convertTypes[$types[1][$step]]);
+                        $type  = str_replace('+', '', $types[1][$step]);
+                        settype($match, $this->convertTypes[$type]);
                         $params[$key] = $match;
                         $step++;
                     }
                 }
 
-                echo "<pre>" . print_r($params, true) . "</pre>";die();
                 $this->params = $params;
                 return true;
             }
