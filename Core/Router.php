@@ -29,7 +29,7 @@ class Router
             if (class_exists($controller)) {
                 $action = $this->params['action'];
                 unset($this->params['action']);
-                $action = $this->convertToCamelCase($action);
+                $action     = $this->convertToCamelCase($action);
                 $controller = new $controller;
 
                 call_user_func_array(
@@ -41,11 +41,11 @@ class Router
                 );
             } else {
                 print_r("Controller class <strong>{$controller}</strong> not found!");
-//                throw new \Exception("Controller class not found");
+                throw new \Exception("Controller class not found");
             }
         } else {
             echo 'No route matched!';
-//            throw new \Exception('No route matched/', 404);
+            throw new \Exception('No route matched/', 404);
         }
     }
 
@@ -70,7 +70,7 @@ class Router
 
     protected function removeQueryStringVariables($url)
     {
-        if (!empty($url)) {
+        if ( ! empty($url)) {
             $parts = explode('&', $url, 2);
 
             if (strpos($parts[0], '=') === false) {
@@ -114,7 +114,7 @@ class Router
                 $step = 0;
                 foreach ($matches as $key => $match) {
                     if (is_string($key)) {
-                        $type  = str_replace('+', '', $types[1][$step]);
+                        $type = str_replace('+', '', $types[1][$step]);
                         settype($match, $this->convertTypes[$type]);
                         $params[$key] = $match;
                         $step++;
@@ -122,6 +122,7 @@ class Router
                 }
 
                 $this->params = $params;
+
                 return true;
             }
         }
