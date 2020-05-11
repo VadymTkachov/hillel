@@ -4,8 +4,17 @@
 namespace App\Controllers;
 
 
+/**
+ * Class Post
+ * @package App\Controllers
+ */
 class Post
 {
+    /**
+     * @param array $data
+     *
+     * @return int
+     */
     public function insert(array $data)
     {
         $postId = 32;
@@ -14,6 +23,11 @@ class Post
     }
 
 
+    /**
+     * @param $id
+     *
+     * @return array
+     */
     public function getPost($id)
     {
         $post = [

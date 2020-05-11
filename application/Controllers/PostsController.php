@@ -8,20 +8,33 @@ use Core\Controller;
 use Core\View;
 use App\Controllers\Post;
 
+/**
+ * Class PostsController
+ * @package App\Controllers
+ */
 class PostsController extends Controller
 {
+    /**
+     * Index action
+     */
     public function index()
     {
         View::render('posts/index.php');
     }
 
 
+    /**
+     * Create action
+     */
     public function create()
     {
         View::render('posts/create.php');
     }
 
 
+    /**
+     * Store action
+     */
     public function store()
     {
         if (empty($_POST['title'])) {
@@ -47,6 +60,9 @@ class PostsController extends Controller
     }
 
 
+    /**
+     * @param int $id
+     */
     public function show(int $id)
     {
         $postModel = new Post();

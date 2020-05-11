@@ -4,6 +4,10 @@
 namespace Core;
 
 
+/**
+ * Class View
+ * @package Core
+ */
 class View
 {
     static public function render($path, $data = [])

@@ -3,7 +3,10 @@
 
 namespace Core;
 
-
+/**
+ * Class Router
+ * @package Core
+ */
 class Router
 {
     protected $routes = [];
@@ -14,6 +17,11 @@ class Router
     ];
 
 
+    /**
+     * @param $url
+     *
+     * @throws \Exception
+     */
     public function dispatch($url)
     {
         $url = trim($url, '/');
@@ -50,6 +58,9 @@ class Router
     }
 
 
+    /**
+     * @return string
+     */
     protected function getNamespace()
     {
         $namespace = 'App\Controllers\\';
@@ -62,12 +73,22 @@ class Router
     }
 
 
+    /**
+     * @param $string
+     *
+     * @return string|string[]
+     */
     protected function convertToStudlyCaps($string)
     {
         return str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
     }
 
 
+    /**
+     * @param $url
+     *
+     * @return mixed|string
+     */
     protected function removeQueryStringVariables($url)
     {
         if ( ! empty($url)) {
@@ -84,12 +105,21 @@ class Router
     }
 
 
+    /**
+     * @param $string
+     *
+     * @return string
+     */
     protected function convertToCamelCase($string)
     {
         return lcfirst($this->convertToStudlyCaps($string));
     }
 
 
+    /**
+     * @param $route
+     * @param array $params
+     */
     public function add($route, array $params = [])
     {
         $route = preg_replace('/\//', '\\/', $route);
@@ -100,12 +130,20 @@ class Router
         $this->routes[$route] = $params;
     }
 
+    /**
+     * @return array
+     */
     public function getRoutes()
     {
         return $this->routes;
     }
 
 
+    /**
+     * @param $url
+     *
+     * @return bool
+     */
     public function match($url)
     {
         foreach ($this->routes as $route => $params) {
